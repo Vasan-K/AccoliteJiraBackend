@@ -1,15 +1,17 @@
 package com.jira.AccoliteJiraBackend.Base;
 
-
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.util.*;
+
+
 
 
 @Entity
@@ -20,13 +22,20 @@ import java.util.*;
 public class Sprint {
 
          @Id
-         @GeneratedValue(strategy = GenerationType.AUTO)
+         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sprint_seq")
+         @GenericGenerator(
+                 name = "sprint_seq",
+                 strategy = "com.jira.AccoliteJiraBackend.Base.StringPrefixedSequenceIdGenerator",
+                 parameters = {
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "1"),
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "SPR"),
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%01d") })
          @Column(name="sprintid")
-         private long sprintId;
+         private String sprintId;
 
-         @Column(name="projectid")
+         @Column(name="projectname")
          @NotNull
-         private String projectId;
+         private String projectName;
 
          @Column(name="allottedtime")
          @NotNull
@@ -54,12 +63,11 @@ public class Sprint {
          @JoinColumn(name="projectsprintid",referencedColumnName = "projectid")
          private Project sprintOfProject;
 
-
          @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL )
          @JoinTable(
                   name="sprint_jira",
-                  joinColumns = @JoinColumn(name="sprint_id",referencedColumnName = "sprintId"),
-                  inverseJoinColumns = @JoinColumn(name="jira_id",referencedColumnName = "jiraId")
+                  joinColumns = @JoinColumn(name="sprint_id"),
+                  inverseJoinColumns = @JoinColumn(name="jira_id")
          )
          @JsonBackReference
          private List<Jira> jirasOfSprint;

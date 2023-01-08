@@ -5,13 +5,15 @@ import com.jira.AccoliteJiraBackend.BusinessLogic.ProjectComponent;
 import com.jira.AccoliteJiraBackend.Service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/projects")
+//@CrossOrigin("")
+@RequestMapping(value = PathConstants.projectPath)
 public class ProjectController {
 
     @Autowired
@@ -20,22 +22,22 @@ public class ProjectController {
     @Autowired
     public ProjectComponent projectComponent;
 
-    @GetMapping("/viewProject")
+    @GetMapping(value = PathConstants.viewAllProjectPath, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Project>> viewAllProjects(){
           return ResponseEntity.ok().body(this.projectService.viewAllProjects());
     }
 
-    @GetMapping("/viewProjectbyId/{projectId}")
-    public ResponseEntity<Project> viewProjectById(@PathVariable("projectId") long projectId){
+    @GetMapping(value = PathConstants.viewProjectByIdPath,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Project> viewProjectById(@PathVariable("projectId") String projectId){
          return ResponseEntity.ok().body(this.projectService.viewProjectById(projectId));
     }
 
-    @GetMapping("/projectdropdown")
+    @GetMapping(value = PathConstants.getProjectDropDownPath,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getProjectDropdown(){
          return ResponseEntity.ok().body(this.projectService.getProjectDropdown());
     }
 
-    @PostMapping("/project")
+    @PostMapping(value = PathConstants.addProjectPath,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Project> createProject(@RequestBody Project project)
     {
         try {
@@ -46,23 +48,23 @@ public class ProjectController {
         }
     }
 
-    @PutMapping("/add/employee/{projectId}/project/{employeeId}")
-    public ResponseEntity<Project> addEmployeeToProject(@PathVariable("projectId") long projectId, @PathVariable("employeeId") long employeeId)
+    @PutMapping(value = PathConstants.addEmpProjectPath,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Project> addEmployeeToProject(@PathVariable("projectId") String projectId, @PathVariable("employeeId") String employeeId)
     {
         try {
-            return projectService.addEmployeeToProject(projectId,employeeId);
+            return projectComponent.addEmployeeToProject(projectId,employeeId);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/remove/employee/{projectId}/project/{employeeId}")
-    public void removeEmployeeFromProject(@PathVariable("projectId") long projectId, @PathVariable("employeeId") long employeeId){
+    @DeleteMapping(value = PathConstants.deleteProjectPath,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public void removeEmployeeFromProject(@PathVariable("projectId") String projectId, @PathVariable("employeeId") String employeeId){
             projectComponent.removeEmployeeFromProject(projectId,employeeId);
 
     }
 
-    @GetMapping("/viewProjectbyAlias/{alias}")
+    @GetMapping(value = PathConstants.projectbyAliasPath,produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<Project> viewAllProjectsByEmployeeId(@PathVariable("alias") String alias){
         return projectComponent.viewAllProjectsByAlias(alias);
     }

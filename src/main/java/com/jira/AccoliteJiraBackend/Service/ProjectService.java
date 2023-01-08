@@ -1,18 +1,14 @@
 package com.jira.AccoliteJiraBackend.Service;
 
-import com.jira.AccoliteJiraBackend.Base.Employee;
+
 import com.jira.AccoliteJiraBackend.Base.Project;
 import com.jira.AccoliteJiraBackend.Repository.EmployeeRepository;
 import com.jira.AccoliteJiraBackend.Repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
 
 @Service
 @Transactional
@@ -20,46 +16,49 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private EmployeeRepository employeeRepository;
 
+
+    /**
+     * performs adding a project to the database
+     * upon creating a project , it will be active unless all its epics,tasks are done.
+     * @param project - object (JSON Form)
+     */
     public void createProject(Project project)
     {
         project.setActive(true);
         projectRepository.save(project);
     }
 
+    /**
+     * views all the projects
+     * findAll() returns a list of project objects
+     */
     public List<Project> viewAllProjects(){
-         return projectRepository.findAll();
+
+        return projectRepository.findAll();
     }
 
+    /**
+     * it returns all the projects by projectLabel
+     * it runs a query and returns a list of strings
+     */
     public List<String> getProjectDropdown(){
 
           return projectRepository.findByProjectLabel();
     }
 
-    public Project viewProjectById(long projectId){
+    /**
+     * it returns the project by ID
+     * @param projectId - type String
+     */
+    public Project viewProjectById(String projectId){
 
-         return projectRepository.findByProjectId(projectId);
+         return projectRepository.getByProjectId(projectId);
     }
 
-    public ResponseEntity<Project> addEmployeeToProject(long projectId,long employeeId) {
-        Optional<Employee> employeeOptional=this.employeeRepository.findById(employeeId);
-        Optional<Project> projectOptional=this.projectRepository.findById(projectId);
 
-        if(projectOptional.isPresent() && employeeOptional.isPresent())
-        {
-
-            Employee employee=employeeOptional.get();
-            Project project=projectOptional.get();
-
-            Set<Employee> s=project.getEmployees();
-
-            project.getEmployees().add(employee);
-            projectRepository.save(project);
-            return new ResponseEntity<Project>(project, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-    }
 
 }

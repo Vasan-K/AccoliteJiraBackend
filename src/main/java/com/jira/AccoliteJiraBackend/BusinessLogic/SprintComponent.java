@@ -15,6 +15,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 @Transactional
 public class SprintComponent {
@@ -23,17 +24,23 @@ public class SprintComponent {
     private SprintService sprintService;
     @Autowired
     private SprintRepository sprintRepository;
-
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
     private JiraRepository jiraRepository;
 
 
-    public ResponseEntity<Sprint> mapJiraSprints(long sprintId, long jiraId) {
 
-        Optional<Sprint> sprintObj = this.sprintRepository.findById(sprintId);
-        Optional<Jira> jiraObj = this.jiraRepository.findById(jiraId);
+
+    /**
+     * Performs adding a jira to a sprint
+     * @param sprintId - to which the jira must be mapped
+     * @param jiraId - the id of jira which must be added
+     */
+    public ResponseEntity<Sprint> mapJiraSprints(String sprintId, String jiraId) {
+
+        Optional<Sprint> sprintObj = this.sprintRepository.findBySprintId(sprintId);
+        Optional<Jira> jiraObj = this.jiraRepository.findByJiraId(jiraId);
 
         if (sprintObj.isPresent() && jiraObj.isPresent()) {
 
@@ -50,9 +57,15 @@ public class SprintComponent {
 
     }
 
-    public ResponseEntity<Sprint> addSprintToProject(long sprintId, long projectId) {
-        Optional<Sprint> sprintObj = this.sprintRepository.findById(sprintId);
-        Optional<Project> projectObj = this.projectRepository.findById(projectId);
+
+    /**
+     * Performs adding a sprint to a project
+     * @param sprintId - sprint to be added
+     * @param projectId - the project to which the sprint must be added
+     */
+    public ResponseEntity<Sprint> addSprintToProject(String sprintId, String projectId) {
+        Optional<Sprint> sprintObj = this.sprintRepository.findBySprintId(sprintId);
+        Optional<Project> projectObj = this.projectRepository.queryByProjectId(projectId);
         if (projectObj.isPresent() && sprintObj.isPresent()) {
             Sprint sprints = sprintObj.get();
             Project project = projectObj.get();
@@ -64,12 +77,21 @@ public class SprintComponent {
     }
 
 
-    public List<Jira> viewCurrentSprintTasks(long projectId){
+    /**
+     * It returns a list of jiras
+     * it returns all the jiras of type Task under the Current Running Sprint
+     * A Custom Query is run that finds the jiras of type "TASK" of the current sprint
+     * current active sprint will have a boolean, that acts as an indicator
+     * @param sprintId - String datatype
+     */
+    public List<Jira> viewCurrentSprintTasks(String projectId){
 
-        long currentSprintId = this.sprintRepository.findBySprintOfProjectProjectId(projectId);
+        String currentSprintId = this.sprintRepository.findBySprintOfProjectProjectId(projectId);
         return this.jiraRepository.findBySprintOfJirasSprintIdAndJiraType(currentSprintId,"Task");
 
     }
+
+
 
 
 

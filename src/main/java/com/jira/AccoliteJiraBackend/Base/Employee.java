@@ -1,13 +1,14 @@
 package com.jira.AccoliteJiraBackend.Base;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.Parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.stereotype.Component;
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 
@@ -19,10 +20,16 @@ import java.util.Set;
 public class Employee {
 
     @Id
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq")
+    @GenericGenerator(
+            name = "employee_seq",
+            strategy = "com.jira.AccoliteJiraBackend.Base.StringPrefixedSequenceIdGenerator",
+            parameters = {
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "1"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "ACC"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%01d") })
     @Column(name = "employeeid")
-    private long employeeId;
+    private String employeeId;
 
     @NotNull
     @Column(name = "alias")
@@ -42,11 +49,15 @@ public class Employee {
 
     @NotNull
     @Column(name = "level")
-    private long level;
+    private String level;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "employees")
     private Set<Project> projects ;
+
+    @OneToMany(mappedBy = "employee")
+    @JsonIgnore
+    private List<Jira> jiraOfEmployee;
 
 }
 

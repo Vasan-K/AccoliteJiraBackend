@@ -21,15 +21,28 @@ public class SprintService {
     @Autowired
     private ProjectRepository projectRepository;
 
+
+
+    /**
+     * performs adding a sprint to the database
+     * by default when a sprint is created , it is active
+     * a sprint is mapped to a project
+     * @param st - sprint object(JSON Form)
+     */
     public Sprint addSprints(Sprint st) {
         st.setCurrent(true);
-        st.setSprintOfProject(projectRepository.findByProjectId(st.getSprintOfProject().getProjectId()));
+        st.setSprintOfProject(projectRepository.getByProjectId(st.getSprintOfProject().getProjectId()));
         return sprintRepository.save(st);
     }
 
-    public Sprint viewSprint(long sprintId) throws NoObjectException {
 
-        Optional<Sprint> sprintObj = this.sprintRepository.findById(sprintId);
+    /**
+     * it returns the sprint object by ID
+     * @param sprintId - type String
+     */
+    public Sprint viewSprint(String sprintId) throws NoObjectException {
+
+        Optional<Sprint> sprintObj = this.sprintRepository.findBySprintId(sprintId);
 
         if (sprintObj.isPresent()) {
             return sprintObj.get();
@@ -38,9 +51,25 @@ public class SprintService {
         }
     }
 
+
+    /**
+     * it returns all the sprints
+     * findAll() returns a list
+     */
     public List<Sprint> viewSprints() {
 
         return this.sprintRepository.findAll();
+    }
+
+
+    /**
+     * it updates all the fields in a sprint
+     * @param sprintId - ID to update that specific sprint
+     * @param sprint - sprint object (JSON Form)
+     */
+    public void updateSprintById(String sprintId, Sprint sprint){
+        sprint.setCurrent(true);
+        sprintRepository.save(sprint);
     }
 
 

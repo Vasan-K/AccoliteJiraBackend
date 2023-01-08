@@ -1,9 +1,8 @@
 package com.jira.AccoliteJiraBackend.Base;
 
-
-
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +18,15 @@ import java.util.List;
 public class Jira {
 
          @Id
-         @NotNull
-         @GeneratedValue(strategy = GenerationType.IDENTITY)
-         private long jiraId;
+         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "jira_seq")
+         @GenericGenerator(
+                 name = "jira_seq",
+                 strategy = "com.jira.AccoliteJiraBackend.Base.StringPrefixedSequenceIdGenerator",
+                 parameters = {
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "1"),
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "J"),
+                         @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%01d") })
+         private String jiraId;
 
          @Column(name="projectname")
          @NotNull
@@ -39,8 +44,7 @@ public class Jira {
          @NotNull
          private String jiraDescription;
 
-         @Column(name="jiraassignee")
-         @NotNull
+         @Column(name="jiraassignee",nullable = true)
          private String jiraAssignee;
 
          @Column(name="jirareporter")
@@ -51,13 +55,20 @@ public class Jira {
          @NotNull
          private String jiraType;
 
-         @Column(name="jirasprint")
+         @Column(name="jirapriority")
          @NotNull
-         private String jiraSprint;
+         private int jiraPriority;
 
-//    for the flag checks for main functionalities
-         @OneToOne(mappedBy="jirastate")
-         private Checks checks;
+         @Column(name="jiralinkedissue")
+         private String jiraLinkedIssue;
+
+         @Column(name="activejira")
+         @NotNull
+         private boolean isjiraActive;
+
+         @Column(name="flag")
+         @NotNull
+         private int flag;
 
          @ManyToOne
          @JoinColumn(name="epictasksid", referencedColumnName = "jiraid")
@@ -73,6 +84,12 @@ public class Jira {
 
          @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "jirasOfSprint")
          private List<Sprint> sprintOfJiras;
+
+         @ManyToOne
+         @JoinColumn(name = "jira_employee_id",referencedColumnName = "employeeid")
+         private Employee employee;
+
+
 
 
 

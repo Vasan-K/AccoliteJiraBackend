@@ -1,17 +1,15 @@
 package com.jira.AccoliteJiraBackend.Base;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.stereotype.Component;
-
 import javax.persistence.*;
-
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
@@ -26,10 +24,16 @@ import java.util.Set;
 public class Project {
 
     @Id
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq")
+    @GenericGenerator(
+            name = "project_seq",
+            strategy = "com.jira.AccoliteJiraBackend.Base.StringPrefixedSequenceIdGenerator",
+            parameters = {
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.INCREMENT_PARAM, value = "1"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "PR"),
+                    @Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%01d") })
     @Column(name="projectid")
-    private long projectId;
+    private String projectId;
 
     @NotNull
     @Column(name = "projectDescription")

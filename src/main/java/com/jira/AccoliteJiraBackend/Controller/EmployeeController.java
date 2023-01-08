@@ -6,13 +6,15 @@ import com.jira.AccoliteJiraBackend.BusinessLogic.EmployeeComponent;
 import com.jira.AccoliteJiraBackend.Service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/employees")
+//@CrossOrigin("")
+@RequestMapping(value = PathConstants.empPath)
 public class EmployeeController {
     @Autowired
     public EmployeeService employeeService;
@@ -20,7 +22,7 @@ public class EmployeeController {
     @Autowired
     public EmployeeComponent employeeComponent;
 
-    @GetMapping("/getallemployees")
+    @GetMapping(value = PathConstants.getAllEmpPath,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Employee>> getAllEmployees(){
            try{
                return new ResponseEntity<List<Employee>>(employeeService.getAllEmployees(),HttpStatus.OK);
@@ -29,18 +31,18 @@ public class EmployeeController {
            }
     }
 
-    @GetMapping("/getemployeedropdown")
+    @GetMapping(value = PathConstants.getEmpDropDownPath,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getEmployeesDropDown(){
         return new ResponseEntity<>(employeeService.getEmployeesDropDown(),HttpStatus.OK);
     }
 
-    @GetMapping("/getemployee/{employeeId}")
-    public Employee findEmployeeById(@PathVariable("employeeId") long employeeId){
+    @GetMapping(value = PathConstants.findEmpByIdPath,produces = MediaType.APPLICATION_JSON_VALUE)
+    public Employee findEmployeeById(@PathVariable("employeeId") String employeeId){
            return employeeService.findEmployeeById(employeeId);
     }
 
-    @GetMapping("/projectemployees/{projectId}/allemployees")
-    public ResponseEntity<List<Employee>> getAllEmployeesByProjectId(@PathVariable("projectId") Long projectId){
+    @GetMapping(value = PathConstants.getEmpByProjectPath,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Employee>> getAllEmployeesByProjectId(@PathVariable("projectId") String projectId){
          try{
              return new ResponseEntity<List<Employee>>(employeeService.getAllEmployeesByProjectId(projectId),HttpStatus.OK);
          } catch (Exception e){
@@ -48,7 +50,7 @@ public class EmployeeController {
          }
     }
 
-    @PostMapping("/employee")
+    @PostMapping(value = PathConstants.addEmpPath,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee)
     {
         try {
@@ -59,20 +61,25 @@ public class EmployeeController {
         }
     }
 
-    @DeleteMapping("/delete/{employeeId}")
-    public void deleteEmployeeById(@PathVariable("employeeId") long employeeId){
+    @DeleteMapping(value = PathConstants.deleteEmpPath,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public void deleteEmployeeById(@PathVariable("employeeId") String employeeId){
            employeeService.deleteEmployeeById(employeeId);
     }
 
-    @PostMapping("/check")
+    @PostMapping(value = PathConstants.loginPath,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
     public String checkCredentials(@RequestBody Credentials credentials)
     {
         return employeeComponent.checkCredentials(credentials);
     }
 
-    @GetMapping("/getemployeeByAlias/{employeeAlias}")
+    @GetMapping(value = PathConstants.findEmpByAliasPath,produces = MediaType.APPLICATION_JSON_VALUE)
     public Employee findEmployeeByAlias(@PathVariable("employeeAlias") String employeeAlias){
         return employeeComponent.findEmployeeByAlias(employeeAlias);
+    }
+
+    @GetMapping(value = PathConstants.findEmpByLevelPath,produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> getReportersDropDown(){
+        return employeeService.getReportersDropDown();
     }
 
 
